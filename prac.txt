@@ -1,0 +1,234 @@
+lamport logical clock- 
+
+#include <bits/stdc++.h>
+using namespace std;
+int max1(int a, int b)
+{
+if (a > b)
+return a;
+else
+return b;
+}
+void display(int e1, int e2, int p1[5], int p2[3])
+{
+int i;
+cout << "\nThe time stamps of "
+"events in P1:\n";
+for (i = 0; i < e1; i++) {
+cout << p1[i] << " ";
+}
+cout << "\nThe time stamps of "
+"events in P2:\n";
+for (i = 0; i < e2; i++)
+cout << p2[i] << " ";
+}
+void lamportLogicalClock(int e1, int e2, int m[5][3])
+{
+int i, j, k, p1[e1], p2[e2];
+// Initialize p1[] and p2[]
+for (i = 0; i < e1; i++)
+p1[i] = i + 1;
+for (i = 0; i < e2; i++)
+p2[i] = i + 1;
+cout << "\t";
+for (i = 0; i < e2; i++)
+cout << "\te2" << i + 1;
+for (i = 0; i < e1; i++) {
+cout << "\n e1" << i + 1 << "\t";
+for (j = 0; j < e2; j++)
+cout << m[i][j] << "\t";
+}
+for (i = 0; i < e1; i++) {
+for (j = 0; j < e2; j++) {
+if (m[i][j] == 1) {
+p2[j] = max1(p2[j], p1[i] + 1);
+for (k = j + 1; k < e2; k++)
+p2[k] = p2[k - 1] + 1;
+}
+if (m[i][j] == -1) {
+p1[i] = max1(p1[i], p2[j] + 1);
+for (k = i + 1; k < e1; k++)
+p1[k] = p1[k - 1] + 1;
+}
+}
+}
+// Function Call
+display(e1, e2, p1, p2);
+}
+int main()
+{
+int e1 = 5, e2 = 3, m[5][3];
+m[0][0] = 0;
+m[0][1] = 0;
+m[0][2] = 0;
+m[1][0] = 0;
+m[1][1] = 0;
+m[1][2] = 1;
+m[2][0] = 0;
+m[2][1] = 0;
+m[2][2] = 0;
+m[3][0] = 0;
+m[3][1] = 0;
+m[3][2] = 0;
+m[4][0] = 0;
+m[4][1] = -1;
+m[4][2] = 0;
+// Function Call
+lamportLogicalClock(e1, e2, m);
+return 0;
+}
+
+
+lamport vector clock-
+
+#include<iostream>
+#include<stdio.h>
+#define SIZE 10
+using namespace std;
+class node {
+public:
+int data[SIZE];
+node *next;
+node() {
+for(int p=0; p<SIZE; p++) {
+data[p] = 0;
+}
+next = NULL;
+}
+node(int v[], int n1) {
+for(int s = 0; s < n1; s++) {
+data[s] = v[s];
+}
+next = NULL;
+}
+friend class process;
+}*start=NULL;
+int main() {
+int n, events, sent, receive, sentE, recE, commLines = 0;
+node *temp;
+node *proc[SIZE]; //array of processes
+cout<<"Enter no. of processes: ";
+cin>>n;
+int vector[n];//representation of data
+for(int i=0;i<n;i++)vector[i]=0;
+/*----------------INITIALIZATION LOOP-------------------------*/
+for(int i = 0; i < n; i++) { //number of processes
+for(int v = 0; v < n; v++) {
+vector[v] = 0;
+}
+cout<<"Enter no. of events in process "<<i+1<<": ";
+cin>>events;
+for(int j = 1; j <= events; j++) {
+vector[i] = j;
+node *newnode = new node(vector,n);
+if(start == NULL) {
+start = newnode;
+temp = start;
+} else {
+temp->next = newnode;
+temp = temp->next;
+}
+}
+proc[i] = start;
+start = NULL;
+}
+/*-------------------DATA GATHERING--------------------*/
+cout<<"\nEnter the number of communication lines: ";
+cin>>commLines;
+node *tempS, *tempR;
+for(int i = 0; i < commLines; i++) {
+cout<<"\nEnter the sending process: ";
+cin>>sent;
+cout<<"\nEnter the receiving process: ";
+cin>>receive;
+cout<<"\nEnter the sending event number: ";
+cin>>sentE;
+cout<<"\nEnter the receiving event number: ";
+cin>>recE;
+tempS = proc[sent - 1];
+tempR = proc[receive - 1];
+for(int j = 1; j < sentE; j++)
+tempS = tempS->next;
+for(int j = 1; j < recE; j++)
+tempR = tempR->next;
+for(int j = 0; j < n; j++) {
+tempR->data[j] = (tempR->data[j] < tempS->data[j]) ?
+tempS->data[j] : tempR->data[j];
+}
+}
+/*-------------------DISPLAYING------------------------*/
+cout<<"\nThe resulting vectors are:\n\n";
+for(int k = 0; k < n; k++) {
+cout<<"Process "<<k + 1<<": ";
+node *temp1 = proc[k];
+while(temp1) {
+cout<<"(";
+for(int f = 0; f < n - 1; f++)
+cout<<temp1->data[f]<<",";
+cout<<temp1->data[n-1];
+cout<<")";
+temp1 = temp1->next;
+}
+cout<<endl;
+}
+return 0;
+}
+
+
+mutual exclusion - 
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+int ns,ncs,timestamp,site;
+cout<<"Enter number of sites :";
+cin>>ns;
+cout<<"Enter number of sites which want to enter critical section:";
+cin>>ncs;
+vector<int> ts(ns,0);
+vector<int> request;
+map <int,int> mp;
+for(int i=0;i<ncs;i++)
+{
+cout<<"\nEnter timestamp:";
+cin>>timestamp;
+cout<<"Enter site number:";
+cin>>site;
+ts[site-1]=timestamp;
+request.push_back(site);
+mp[timestamp]=site;
+}
+cout<<"\nSites and Timestamp:\n";
+for(int i=0;i<ts.size();i++)
+{
+cout<<i+1<<" "<<ts[i]<<endl;
+}
+for(int i=0;i<request.size();i++)
+{
+cout<<"\n Request from site:"<<request[i]<<endl;
+for(int j=0;j<ts.size();j++)
+{
+if(request[i]!=(j+1))
+{
+if(ts[j]>ts[request[i]-1] || ts[j]==0)
+cout<<j+1<<" Replied\n";
+else
+cout<<j+1<<" Deferred\n";
+}
+}
+}
+cout<<endl;
+map<int,int>:: iterator it;
+it=mp.begin();
+int c=0;
+for(it=mp.begin();it!=mp.end();it++)
+{
+cout<<"Site "<<it->second<<" entered Critical Section \n";
+if(c==0)
+cout<<"\nSimilarly,\n\n";
+c++;
+}
+return 0;
+} 
+
